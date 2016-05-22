@@ -1,5 +1,14 @@
 ;; gfn-latex.el
 
+(defvar gfn-latex-mode-map
+  (let ((km (make-keymap)))
+    (progn
+      (define-key km (kbd "C-c C-b") 'insert-environment)
+      (define-key km (kbd "C-c C-t") 'typeset)
+      (define-key km (kbd "C-M-c") 'scroll-log)
+      (define-key km (kbd "C-c C-f") 'open-pdf)
+      km)))
+
 (defface gfn-latex-expansion-control-face
   '((t (:foreground "#88ff88" :backgound "dark")))
   "control sequences for the expansion control")
@@ -31,22 +40,25 @@
 (define-generic-mode gfn-latex-mode
   '(?%)
   '()
-  '(("\\(\\\\[a-zA-Z@]+\\)[^a-zA-Z@]"
+  '(("\\(\\\\[a-zA-Z@]+\\)\\>"
      (1 'gfn-latex-control-sequence-face t))
-    ("\\(\\\\\\(?:expandafter\\|noexpand\\)\\)[^a-zA-Z@]"
+    ("\\(\\\\\\(?:expandafter\\|noexpand\\)\\)\\>"
      (1 'gfn-latex-expansion-control-face t))
-    ("\\(\\\\\\(?:global\\|let\\|def\\|gdef\\)\\)[^a-zA-Z@]"
+    ("\\(\\\\\\(?:global\\|let\\|def\\|gdef\\)\\)\\>"
      (1 'gfn-latex-definition-face t))
-    ("\\(\\\\\\(?:if[a-zA-Z@]*\\|else\\|or\\|fi\\)\\)[^a-zA-Z@]"
+    ("\\(\\\\\\(?:if[a-zA-Z@]*\\|else\\|or\\|fi\\)\\)\\>"
      (1 'gfn-latex-if-face t))
-    ("\\(\\\\\\(?:the\\|string\\|csname\\|endcsname\\)\\)[^a-zA-Z@]"
+    ("\\(\\\\\\(?:the\\|string\\|csname\\|endcsname\\)\\)\\>"
      (1 'gfn-latex-important-primitive-face t))
     ("\\(\\\\\\(?:begin\\|end\\){\\)\\([a-zA-Z\\*]*\\)\\(}\\)"
      (1 'gfn-latex-environment-frame-face t)
      (2 'gfn-latex-environment-name-face t)
      (3 'gfn-latex-environment-frame-face t)))
   '(".+\\.\\(tex\\|sty\\)")
-  '()
+  '((lambda ()
+      (progn
+	(use-local-map gfn-latex-mode-map)
+	(setq mode-name "gfn-LaTeX"))))
   "gfn-LaTeX")
 
 
@@ -54,8 +66,19 @@
   (interactive)
   (progn
     (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
-    (shell-command (format "latexmk %s\n" buffer-file-name))
-    (message "Done.")))
+    (async-shell-command (format "latexmk %s\n" buffer-file-name))))
+
+(defun scroll-log ()
+  (interactive)
+  (with-selected-window (get-buffer-window"*Async Shell Command*")
+    (scroll-down)))
+
+(defun open-pdf ()
+  (interactive)
+  (let ((pdf-file-path (concat (file-name-sans-extension buffer-file-name) ".pdf")))
+    (progn
+      (message "Opening '%s' ..." pdf-file-path)
+      (async-shell-command (format "sumatrapdf %s\n" pdf-file-path)))))
 
 (defun insert-environment (envname)
   (interactive "sname: ")
@@ -80,6 +103,6 @@
       pt
     (gfn-latex/find-beginning-point (1- pt))))
 
-(defun get-indent-width-interactive ()
-  (interactive)
-  (message (format "indent width: %d" (get-indent-width (point)))))
+;(defun get-indent-width-interactive ()
+;  (interactive)
+;  (message (format "indent width: %d" (get-indent-width (point)))))
