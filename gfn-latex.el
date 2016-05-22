@@ -50,6 +50,13 @@
   "gfn-LaTeX")
 
 
+(defun typeset ()
+  (interactive)
+  (progn
+    (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
+    (shell-command (format "latexmk %s\n" buffer-file-name))
+    (message "Done.")))
+
 (defun insert-environment (envname)
   (interactive "sname: ")
   (let ((original-point (point)))
