@@ -1,4 +1,5 @@
 ;; gfn-latex.el
+(provide 'gfn-latex)
 
 (defvar gfn-latex-mode-map
   (let ((km (make-keymap)))
@@ -7,7 +8,12 @@
       (define-key km (kbd "C-c C-t") 'typeset)
       (define-key km (kbd "C-M-c") 'scroll-log)
       (define-key km (kbd "C-c C-f") 'open-pdf)
+      (define-key km (kbd "{") 'insert-bracket-pair)
       km)))
+
+(defface gfn-latex-comment-out-face
+  '((t (:foreground "#888888" :backgound "dark")))
+  "comment-outs")
 
 (defface gfn-latex-expansion-control-face
   '((t (:foreground "#88ff88" :backgound "dark")))
@@ -38,7 +44,7 @@
   "LaTeX environment names")
 
 (define-generic-mode gfn-latex-mode
-  '(?%)
+  '()
   '()
   '(("\\(\\\\[a-zA-Z@]+\\)\\>"
      (1 'gfn-latex-control-sequence-face t))
@@ -53,7 +59,9 @@
     ("\\(\\\\\\(?:begin\\|end\\){\\)\\([a-zA-Z\\*]*\\)\\(}\\)"
      (1 'gfn-latex-environment-frame-face t)
      (2 'gfn-latex-environment-name-face t)
-     (3 'gfn-latex-environment-frame-face t)))
+     (3 'gfn-latex-environment-frame-face t))
+    ("\\(%.*\n\\)"
+     (1 'gfn-latex-comment-out-face t)))
   '(".+\\.\\(tex\\|sty\\)")
   '((lambda ()
       (progn
@@ -70,7 +78,7 @@
 
 (defun scroll-log ()
   (interactive)
-  (with-selected-window (get-buffer-window"*Async Shell Command*")
+  (with-selected-window (get-buffer-window "*Async Shell Command*")
     (scroll-down)))
 
 (defun open-pdf ()
@@ -103,6 +111,8 @@
       pt
     (gfn-latex/find-beginning-point (1- pt))))
 
-;(defun get-indent-width-interactive ()
-;  (interactive)
-;  (message (format "indent width: %d" (get-indent-width (point)))))
+(defun insert-bracket-pair ()
+  (interactive)
+  (progn
+    (insert "{}")
+    (forward-char -1)))
