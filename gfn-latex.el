@@ -111,8 +111,17 @@
       pt
     (gfn-latex/find-beginning-point (1- pt))))
 
-(defun insert-bracket-pair ()
-  (interactive)
-  (progn
-    (insert "{}")
-    (forward-char -1)))
+(defun insert-bracket-pair (&optional arg)
+  (interactive "P")
+  (let* ((num (if (equal arg nil) 1 arg)))
+    (progn
+      (insert-bracket-pair-sub num)
+      (forward-char (- 1 (* 2 num)))))
+  )
+
+(defun insert-bracket-pair-sub (num)
+  (if (<= num 0)
+      nil
+    (progn
+      (insert "{}")
+      (insert-bracket-pair-sub (1- num)))))
