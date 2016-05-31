@@ -15,21 +15,20 @@ LaTeXファイルを執筆するための簡素なEmacs Lispパッケージ．
 
 があります．
 
-## 用法
+## 設定
 
-`init.el` に以下を加えることで開いたときに自動的に `gfn-latex-mode` に入ります：
+`init.el` に以下を加えることで，LaTeXファイルを開いたときに自動的に `gfn-latex-mode` に入ります：
 
 ```lisp
-(setq auto-mode-alist
-      (append '(("\\.tex$" . gfn-latex-mode)
-                ("\\.ltx$" . gfn-latex-mode)
-                ("\\.cls$" . gfn-latex-mode)
-                ("\\.sty$" . gfn-latex-mode)
-                ("\\.clo$" . gfn-latex-mode)
-                ("\\.bbl$" . gfn-latex-mode)) auto-mode-alist))
+(add-to-list 'auto-mode-alist '("\\.tex$" . gfn-latex-mode))
+(add-to-list 'auto-mode-alist '("\\.ltx$" . gfn-latex-mode))
+(add-to-list 'auto-mode-alist '("\\.cls$" . gfn-latex-mode))
+(add-to-list 'auto-mode-alist '("\\.sty$" . gfn-latex-mode))
+(add-to-list 'auto-mode-alist '("\\.clo$" . gfn-latex-mode))
+(add-to-list 'auto-mode-alist '("\\.bbl$" . gfn-latex-mode))
 ```
 
-キーバインドと機能は以下のとおり：
+## キーバインドと機能
 
 | キーバインド | 対応づけられた函数の仕様           | 説明 |
 |-----------|----------------------------------|------|
