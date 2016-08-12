@@ -6,6 +6,7 @@
     (progn
       (define-key km (kbd "C-c C-b") 'insert-environment)
       (define-key km (kbd "C-c C-t") 'typeset)
+      (define-key km (kbd "C-c RET") 'typeset-using-makefile)
       (define-key km (kbd "C-M-c") 'scroll-log)
       (define-key km (kbd "C-c C-f") 'open-pdf)
       (define-key km (kbd "{") 'insert-brace-pair)
@@ -74,7 +75,8 @@
   '((lambda ()
       (progn
 	(use-local-map gfn-latex-mode-map)
-	(setq mode-name "gfn-LaTeX"))))
+	(setq mode-name "gfn-LaTeX")
+        (auto-complete-mode t))))
   "gfn-LaTeX")
 
 
@@ -83,6 +85,13 @@
   (progn
     (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
     (async-shell-command (format "latexmk %s\n" buffer-file-name))))
+
+
+(defun typeset-using-makefile ()
+  (interactive)
+  (progn
+    (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
+    (async-shell-command "make\n")))
 
 
 (defun scroll-log ()
