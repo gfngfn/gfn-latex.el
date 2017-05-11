@@ -6,6 +6,7 @@
     (progn
       (define-key km (kbd "C-c C-b") 'gfn-latex-insert-environment)
       (define-key km (kbd "C-c C-t") 'gfn-latex-typeset)
+      (define-key km (kbd "C-c C-d") 'gfn-latex-insert-math)
       (define-key km (kbd "C-c RET") 'gfn-latex-typeset-using-makefile)
       (define-key km (kbd "C-M-c")   'gfn-latex-scroll-log)
       (define-key km (kbd "C-c C-f") 'gfn-latex-open-pdf)
@@ -158,6 +159,12 @@
       (insert "{}")
       (gfn-latex/insert-brace-pair-sub (1- num)))))
 
+
+(defun gfn-latex-insert-math ()
+  (interactive)
+  (progn
+    (insert "\\(\\)")
+    (backward-char 2)))
 
 (defun gfn-latex-new-line ()
   (interactive)
