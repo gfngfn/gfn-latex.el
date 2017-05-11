@@ -4,19 +4,23 @@
 (defvar gfn-latex-mode-map
   (let ((km (make-keymap)))
     (progn
-      (define-key km (kbd "C-c C-b") 'insert-environment)
-      (define-key km (kbd "C-c C-t") 'typeset)
-      (define-key km (kbd "C-c RET") 'typeset-using-makefile)
-      (define-key km (kbd "C-M-c") 'scroll-log)
-      (define-key km (kbd "C-c C-f") 'open-pdf)
-      (define-key km (kbd "{") 'insert-brace-pair)
-      (define-key km (kbd "RET") 'gfn-latex-new-line)
+      (define-key km (kbd "C-c C-b") 'gfn-latex-insert-environment)
+      (define-key km (kbd "C-c C-t") 'gfn-latex-typeset)
+      (define-key km (kbd "C-c RET") 'gfn-latex-typeset-using-makefile)
+      (define-key km (kbd "C-M-c")   'gfn-latex-scroll-log)
+      (define-key km (kbd "C-c C-f") 'gfn-latex-open-pdf)
+      (define-key km (kbd "{")       'gfn-latex-insert-brace-pair)
+      (define-key km (kbd "RET")     'gfn-latex-new-line)
       km)))
 
 
 (defface gfn-latex-comment-out-face
   '((t (:foreground "#888888" :backgound "dark")))
   "comment-outs")
+
+(defface gfn-latex-escaped-symbol-face
+  '((t (:foreground "#ff88ff" :backgroud "dark")))
+  "escaped symbols")
 
 (defface gfn-latex-expansion-control-face
   '((t (:foreground "#88ff88" :backgound "dark")))
@@ -55,9 +59,11 @@
   '()
   '(("\\(\\\\[a-zA-Z@]+\\)\\>"
      (1 'gfn-latex-control-sequence-face t))
+    ("\\(\\\\\\(?:\\\\\\|(\\|)\\|\\[\\|\\]\\|{\\|}\\|@\\)\\)"
+     (1 'gfn-latex-escaped-symbol-face t))
     ("\\(\\\\\\(?:expandafter\\|noexpand\\)\\)\\>"
      (1 'gfn-latex-expansion-control-face t))
-    ("\\(\\\\\\(?:global\\|let\\|def\\|gdef\\|newcount\\|newdimen\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\)\\)\\>"
+    ("\\(\\\\\\(?:global\\|let\\|futurelet\\|def\\|edef\\|gdef\\|newcount\\|newdimen\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\)\\)\\>"
      (1 'gfn-latex-definition-face t))
     ("\\(\\\\\\(?:if[a-zA-Z@]*\\|else\\|or\\|fi\\)\\)\\>"
      (1 'gfn-latex-if-face t))
@@ -80,27 +86,27 @@
   "gfn-LaTeX")
 
 
-(defun typeset ()
+(defun gfn-latex-typeset ()
   (interactive)
   (progn
     (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
     (async-shell-command (format "latexmk %s\n" buffer-file-name))))
 
 
-(defun typeset-using-makefile ()
+(defun gfn-latex-typeset-using-makefile ()
   (interactive)
   (progn
     (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
     (async-shell-command "make\n")))
 
 
-(defun scroll-log ()
+(defun gfn-latex-scroll-log ()
   (interactive)
   (with-selected-window (get-buffer-window "*Async Shell Command*")
     (scroll-down)))
 
 
-(defun open-pdf ()
+(defun gfn-latex-open-pdf ()
   (interactive)
   (let ((pdf-file-path (concat (file-name-sans-extension buffer-file-name) ".pdf")))
     (progn
@@ -108,7 +114,7 @@
       (async-shell-command (format "sumatrapdf %s\n" pdf-file-path)))))
 
 
-(defun insert-environment (envname)
+(defun gfn-latex-insert-environment (envname)
   (interactive "sname: ")
   (let ((original-point (point)))
     (let ((indent-width (gfn-latex/get-indent-width original-point)))
@@ -137,20 +143,20 @@
     (gfn-latex/find-beginning-point (1- pt))))
 
 
-(defun insert-brace-pair (&optional arg)
+(defun gfn-latex-insert-brace-pair (&optional arg)
   (interactive "P")
   (let* ((num (if (equal arg nil) 1 arg)))
     (progn
-      (insert-brace-pair-sub num)
+      (gfn-latex/insert-brace-pair-sub num)
       (forward-char (- 1 (* 2 num))))))
 
 
-(defun insert-brace-pair-sub (num)
+(defun gfn-latex/insert-brace-pair-sub (num)
   (if (<= num 0)
       nil
     (progn
       (insert "{}")
-      (insert-brace-pair-sub (1- num)))))
+      (gfn-latex/insert-brace-pair-sub (1- num)))))
 
 
 (defun gfn-latex-new-line ()
