@@ -60,11 +60,11 @@
   '()
   '(("\\(\\\\[a-zA-Z@]+\\)\\>"
      (1 'gfn-latex-control-sequence-face t))
-    ("\\(\\\\\\(?:\\\\\\|(\\|)\\|\\[\\|\\]\\|{\\|}\\|@\\)\\)"
+    ("\\(\\\\\\(?:\\\\\\|(\\|)\\|\\[\\|\\]\\|{\\|}\\)\\)"
      (1 'gfn-latex-escaped-symbol-face t))
     ("\\(\\\\\\(?:expandafter\\|noexpand\\)\\)\\>"
      (1 'gfn-latex-expansion-control-face t))
-    ("\\(\\\\\\(?:global\\|let\\|futurelet\\|def\\|edef\\|gdef\\|newcount\\|newdimen\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\)\\)\\>"
+    ("\\(\\\\\\(?:global\\|let\\|futurelet\\|def\\|edef\\|gdef\\|xdef\\|newcount\\|newdimen\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\)\\)\\>"
      (1 'gfn-latex-definition-face t))
     ("\\(\\\\\\(?:if[a-zA-Z@]*\\|else\\|or\\|fi\\)\\)\\>"
      (1 'gfn-latex-if-face t))
@@ -74,11 +74,11 @@
      (1 'gfn-latex-environment-frame-face t)
      (2 'gfn-latex-environment-name-face t)
      (3 'gfn-latex-environment-frame-face t))
-    ("\\(\\\\\\(?:newcommand\\|renewcommand\\|newcounter\\|newlength\\|setlength\\|setcounter\\|refstepcounter\\|stepcounter\\)\\)\\>"
+    ("\\(\\\\\\(?:newcommand\\|renewcommand\\|providecommand\\|newcounter\\|newlength\\|setlength\\|setcounter\\|refstepcounter\\|stepcounter\\)\\)\\>"
      (1 'gfn-latex-latex-program-face t))
     ("\\(%.*\n\\)"
      (1 'gfn-latex-comment-out-face t)))
-  '(".+\\.\\(tex\\|sty\\)")
+  '(".+\\.\\(tex\\|sty\\|ltx\\|cls\\|clo\\)")
   '((lambda ()
       (progn
 	(use-local-map gfn-latex-mode-map)
@@ -169,7 +169,8 @@
 (defun gfn-latex-new-line ()
   (interactive)
   (cond ((gfn-latex/is-cursor-between-braces) (gfn-latex/insert-new-line-between-braces))
-        ((gfn-latex/is-cursor-after-brace) (gfn-latex/insert-new-line-after-brace))
+        ((gfn-latex/is-cursor-after-brace) (gfn-latex/insert-percent-and-new-line-after-brace))
+        ((gfn-latex/is-cursor-after-percent-and-brace) (gfn-latex/insert-new-line-after-brace))
         (t (gfn-latex/insert-new-line-normal))))
 
 
@@ -181,6 +182,10 @@
   (equal (char-before (point)) ?{))
 
 
+(defun gfn-latex/is-cursor-after-percent-and-brace ()
+  (and (equal (char-before (point)) ?%) (equal (char-before (1- (point))) ?{)))
+
+
 (defun gfn-latex/get-current-indent-string ()
   (let ((original-point (point)))
     (let ((indent-width (gfn-latex/get-indent-width original-point)))
@@ -190,13 +195,18 @@
 (defun gfn-latex/insert-new-line-between-braces ()
   (let ((indent-string (gfn-latex/get-current-indent-string)))
     (progn
-      (insert (format "\n%s  \n%s" indent-string indent-string))
+      (insert (format "%%\n%s  \n%s" indent-string indent-string))
       (forward-char (- (length (format "\n%s" indent-string)))))))
 
 
 (defun gfn-latex/insert-new-line-after-brace ()
   (let ((indent-string (gfn-latex/get-current-indent-string)))
     (insert (format "\n%s  " indent-string))))
+
+
+(defun gfn-latex/insert-percent-and-new-line-after-brace ()
+  (let ((indent-string (gfn-latex/get-current-indent-string)))
+    (insert (format "%%\n%s  " indent-string))))
 
 
 (defun gfn-latex/insert-new-line-normal ()
