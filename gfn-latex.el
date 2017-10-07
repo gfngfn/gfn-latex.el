@@ -146,10 +146,19 @@
 
 (defun gfn-latex-insert-brace-pair (&optional arg)
   (interactive "P")
-  (let* ((num (if (equal arg nil) 1 arg)))
-    (progn
-      (gfn-latex/insert-brace-pair-sub num)
-      (forward-char (- 1 (* 2 num))))))
+  (cond ((use-region-p)
+         (let ((rb (region-beginning)))
+           (let ((re (region-end)))
+             (progn
+               (goto-char rb)
+               (insert "{")
+               (goto-char (1+ re))
+               (insert "}")
+               (forward-char -1)))))
+        (t (let* ((num (if (equal arg nil) 1 arg)))
+             (progn
+               (gfn-latex/insert-brace-pair-sub num)
+               (forward-char (- 1 (* 2 num))))))))
 
 
 (defun gfn-latex/insert-brace-pair-sub (num)
