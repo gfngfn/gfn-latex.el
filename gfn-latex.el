@@ -1,6 +1,8 @@
 ;; gfn-latex.el
 (provide 'gfn-latex)
 
+(defvar gfn-latex-pdf-viewer-command "open")
+
 (defvar gfn-latex-mode-map
   (let ((km (make-keymap)))
     (progn
@@ -112,7 +114,7 @@
   (let ((pdf-file-path (concat (file-name-sans-extension buffer-file-name) ".pdf")))
     (progn
       (message "Opening '%s' ..." pdf-file-path)
-      (async-shell-command (format "sumatrapdf %s\n" pdf-file-path)))))
+      (async-shell-command (format "%s %s\n" gfn-latex-pdf-viewer-command pdf-file-path)))))
 
 
 (defun gfn-latex-insert-environment (envname)
