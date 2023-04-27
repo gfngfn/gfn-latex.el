@@ -7,7 +7,7 @@
 
 (defgroup gfn-latex nil
   "Group for gfn-latex."
-  :prefix "satysfi-"
+  :prefix "gfn-latex-"
   :group 'languages)
 
 (defvar gfn-latex-pdf-viewer-command "open")
@@ -32,7 +32,12 @@
 
 (defface gfn-latex-escaped-symbol-face
   '((t (:foreground "#ff88ff" :backgroud "dark")))
-  "Escaped symbols."
+  "Escaped parentheses."
+  :group 'gfn-latex)
+
+(defface gfn-latex-ott-bracket-face
+  '((t (:foreground "#22ffff" :backgroud "dark")))
+  "Ott brackets."
   :group 'gfn-latex)
 
 (defface gfn-latex-expansion-control-face
@@ -82,6 +87,8 @@
      (1 'gfn-latex-control-sequence-face t))
     ("\\(\\\\\\(?:\\\\\\|(\\|)\\|\\[\\|\\]\\|{\\|}\\)\\)"
      (1 'gfn-latex-escaped-symbol-face t))
+    ("\\(\\[\\[\\|\\]\\]\\)"
+     (1 'gfn-latex-ott-bracket-face t))
     ("\\(\\\\\\(?:expandafter\\|noexpand\\)\\)\\>"
      (1 'gfn-latex-expansion-control-face t))
     ("\\(\\\\\\(?:global\\|let\\|futurelet\\|def\\|edef\\|gdef\\|xdef\\|newcount\\|newdimen\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\)\\)\\>"
@@ -98,7 +105,7 @@
      (1 'gfn-latex-latex-program-face t))
     ("\\(%.*\n\\)"
      (1 'gfn-latex-comment-out-face t)))
-  '(".+\\.\\(tex\\|sty\\|ltx\\|cls\\|clo\\)")
+  '(".+\\.\\(tex\\|sty\\|ltx\\|cls\\|clo\\|otex\\)")
   '((lambda ()
       (progn
 	(use-local-map gfn-latex-mode-map)
