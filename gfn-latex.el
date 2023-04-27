@@ -1,5 +1,14 @@
-;; gfn-latex.el
-(provide 'gfn-latex)
+;;; gfn-latex.el --- A lightweight major mode for LaTeX (possibly with Ott)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+;; Provides a lightweight major mode for LaTeX (possibly with Ott).
+
+;;; Code:
+
+(defgroup gfn-latex nil
+  "Group for gfn-latex."
+  :prefix "satysfi-"
+  :group 'languages)
 
 (defvar gfn-latex-pdf-viewer-command "open")
 
@@ -16,46 +25,55 @@
       (define-key km (kbd "RET")     'gfn-latex-new-line)
       km)))
 
-
 (defface gfn-latex-comment-out-face
   '((t (:foreground "#888888" :backgound "dark")))
-  "comment-outs")
+  "Comment-outs."
+  :group 'gfn-latex)
 
 (defface gfn-latex-escaped-symbol-face
   '((t (:foreground "#ff88ff" :backgroud "dark")))
-  "escaped symbols")
+  "Escaped symbols."
+  :group 'gfn-latex)
 
 (defface gfn-latex-expansion-control-face
   '((t (:foreground "#88ff88" :backgound "dark")))
-  "control sequences for the expansion control")
+  "Control sequences for the expansion control."
+  :group 'gfn-latex)
 
 (defface gfn-latex-definition-face
   '((t (:foreground "#ffff88" :backgound "dark")))
-  "control sequences for the definition")
+  "Control sequences for the definition."
+  :group 'gfn-latex)
 
 (defface gfn-latex-if-face
   '((t (:foreground "#ff8888" :backgound "dark")))
-  "if-branching primitives")
+  "If-branching primitives."
+  :group 'gfn-latex)
 
 (defface gfn-latex-important-primitive-face
   '((t (:foreground "#ffbb88" :backgound "dark")))
-  "important primitives")
+  "Important primitives."
+  :group 'gfn-latex)
 
 (defface gfn-latex-control-sequence-face
   '((t (:foreground "#8888ff" :backgound "dark")))
-  "general control sequences")
+  "General control sequences."
+  :group 'gfn-latex)
 
 (defface gfn-latex-environment-frame-face
   '((t (:foreground "#ff2222" :backgound "dark")))
-  "LaTeX environment frames")
+  "LaTeX environment frames."
+  :group 'gfn-latex)
 
 (defface gfn-latex-environment-name-face
   '((t (:foreground "#ffaa22" :backgound "dark")))
-  "LaTeX environment names")
+  "LaTeX environment names."
+  :group 'gfn-latex)
 
 (defface gfn-latex-latex-program-face
   '((t (:foreground "#ffdd22" :backgroud "dark")))
-  "LaTeX commands for LaTeX-level programs")
+  "LaTeX commands for LaTeX-level programs."
+  :group 'gfn-latex)
 
 (define-generic-mode gfn-latex-mode
   '()
@@ -86,10 +104,11 @@
 	(use-local-map gfn-latex-mode-map)
 	(setq mode-name "gfn-LaTeX")
         (auto-complete-mode t))))
-  "gfn-LaTeX")
+  "Gfn-LaTeX mode.")
 
 
 (defun gfn-latex-typeset ()
+  "Typeset the file corresponding to the current buffer (by using `latexmk`)."
   (interactive)
   (progn
     (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
@@ -97,6 +116,7 @@
 
 
 (defun gfn-latex-typeset-using-makefile ()
+  "Typeset the file corresponding to the current buffer (by using `make`)."
   (interactive)
   (progn
     (message "Typesetting '%s' ..." (file-name-nondirectory buffer-file-name))
@@ -104,12 +124,14 @@
 
 
 (defun gfn-latex-scroll-log ()
+  "Scroll the typesetting log down."
   (interactive)
   (with-selected-window (get-buffer-window "*Async Shell Command*")
     (scroll-down)))
 
 
 (defun gfn-latex-open-pdf ()
+  "Open the resulting PDF file corresponding to the current buffer."
   (interactive)
   (let ((pdf-file-path (concat (file-name-sans-extension buffer-file-name) ".pdf")))
     (progn
@@ -118,6 +140,7 @@
 
 
 (defun gfn-latex-insert-environment (envname)
+  "Insert an environment \\begin{ENVNAME}...\\end{ENVNAME} and move the cursor in it."
   (interactive "sname: ")
   (let ((original-point (point)))
     (let ((indent-width (gfn-latex/get-indent-width original-point)))
@@ -128,12 +151,14 @@
 
 
 (defun gfn-latex/get-indent-width (orgpt)
+  "Get the indentation width of the line ORGPT belongs to."
   (let ((bgnpt (gfn-latex/find-beginning-point orgpt)))
     (let ((endpt (gfn-latex/get-end-point bgnpt orgpt)))
       (- endpt bgnpt))))
 
 
 (defun gfn-latex/get-end-point (pt maxpt)
+  "Find where the indentation of the line containing PT ends before MAXPT."
   (cond ((equal pt (point-max)) pt)
         ((not (equal (char-after pt) ? )) pt)
         ((equal pt maxpt) pt)
@@ -141,12 +166,15 @@
 
 
 (defun gfn-latex/find-beginning-point (pt)
+  "Find where the line containing PT begins."
   (if (or (equal pt (point-min)) (equal (char-before pt) ?\n))
       pt
     (gfn-latex/find-beginning-point (1- pt))))
 
 
 (defun gfn-latex-insert-brace-pair (&optional arg)
+  "Insert brace pairs {} of number ARG around the selected region.
+Default: ARG = 1"
   (interactive "P")
   (cond ((use-region-p)
          (let ((rb (region-beginning)))
@@ -164,6 +192,7 @@
 
 
 (defun gfn-latex/insert-brace-pair-sub (num)
+  "Insert brace pairs of number NUM."
   (if (<= num 0)
       nil
     (progn
@@ -172,12 +201,14 @@
 
 
 (defun gfn-latex-insert-math ()
+  "Insert a math parenthesis pair \\(\\)."
   (interactive)
   (progn
     (insert "\\(\\)")
     (backward-char 2)))
 
 (defun gfn-latex-new-line ()
+  "Start a new line possibly with `%` added."
   (interactive)
   (cond ((gfn-latex/is-cursor-between-braces) (gfn-latex/insert-new-line-between-braces))
         ((gfn-latex/is-cursor-after-brace) (gfn-latex/insert-percent-and-new-line-after-brace))
@@ -186,24 +217,29 @@
 
 
 (defun gfn-latex/is-cursor-between-braces ()
+  "Judge whether the cursor is immediately after `{` and immediately before `}`."
   (and (equal (char-before (point)) ?{) (equal (char-after (point)) ?})))
 
 
 (defun gfn-latex/is-cursor-after-brace ()
+  "Judge whether the cursor is immediately after `{`."
   (equal (char-before (point)) ?{))
 
 
 (defun gfn-latex/is-cursor-after-percent-and-brace ()
+  "Judge whether the cursor is immediately after `{%`."
   (and (equal (char-before (point)) ?%) (equal (char-before (1- (point))) ?{)))
 
 
 (defun gfn-latex/get-current-indent-string ()
+  "Return the indentation string based on the current cursor point."
   (let ((original-point (point)))
     (let ((indent-width (gfn-latex/get-indent-width original-point)))
       (make-string indent-width ? ))))
 
 
 (defun gfn-latex/insert-new-line-between-braces ()
+  "Start a new line with the indentation deepened."
   (let ((indent-string (gfn-latex/get-current-indent-string)))
     (progn
       (insert (format "%%\n%s  \n%s" indent-string indent-string))
@@ -211,15 +247,21 @@
 
 
 (defun gfn-latex/insert-new-line-after-brace ()
+  "Start a new line with the indentation deepened."
   (let ((indent-string (gfn-latex/get-current-indent-string)))
     (insert (format "\n%s  " indent-string))))
 
 
 (defun gfn-latex/insert-percent-and-new-line-after-brace ()
+  "Insert a percent sign and start a new line with the indentation deepened."
   (let ((indent-string (gfn-latex/get-current-indent-string)))
     (insert (format "%%\n%s  " indent-string))))
 
 
 (defun gfn-latex/insert-new-line-normal ()
+  "Start a new line with the indentation kept."
   (let ((indent-string (gfn-latex/get-current-indent-string)))
     (insert (format "\n%s" indent-string))))
+
+(provide 'gfn-latex)
+;;; gfn-latex.el ends here
