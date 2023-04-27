@@ -1,25 +1,32 @@
-<!-- -*- coding: utf-8 -*- -->
 # `gfn-latex.el`
 
-## 概要
+## Summary
 
-LaTeXファイルを執筆するための簡素なEmacs Lispパッケージ．
-`gfn-latex-mode` というメジャーモードからなっています．
-今のところタイプセットにlatexmk，PDF閲覧にSumatraPDFを使うことを前提としています．
-（これらはオプションによって可変にする実装もできますが，今のところ放置）．
-機能として
+An Emacs package that provides a lightweight major mode for writing LaTeX sources.
 
-* シンタックスハイライト
-* 環境 `\begin{hoge} ... \end{hoge}` の入力補助
-* 数式 `\( ... \)` の入力補助
-* EmacsからLaTeXファイルをタイプセットしてログを表示
-* EmacsからSumatraPDFを起動して出力されたPDFを閲覧
+Major functionalities:
 
-があります．
+- Syntax highlighting of the LaTeX syntax
+  * Supports highlighting of inline [Ott](https://github.com/ott-lang/ott) expressions `[[...]]` as well
+- Easy insertion of `\begin{foo}...\end{foo}`, `\(...\)`, etc.
+- Typesetting with [Latexmk](https://www.ctan.org/pkg/latexmk)
 
-## 設定
 
-`init.el` に以下を加えることで，LaTeXファイルを開いたときに自動的に `gfn-latex-mode` に入ります：
+## Keybinds
+
+| keybind | corresponding function | what will happen |
+|---------|------------------------|------------------|
+| `{`       | `(gfn-latex-insert-bracket &optional NUM)` | Inserts a brace pair `{}` and move the cursor in it. When a natural number `NUM` is given by using `C-u`, it will insert `NUM` brace pairs. |
+| `C-c C-b` | `(gfn-latex-insert-environment ENVNAME)` | Inserts an environment `\begin{ENVNAME} \end{ENVNAME}` where `ENVNAME` can be given by a minibuffer. |
+| `C-c C-d` | `(gfn-latex-insert-math)` | Inserts `\(\)` for inline maths. |
+| `C-c C-t` | `(gfn-latex-typeset)` | Typesets the current buffer. Logs will be shown in the `*Async Shell Command*` buffer. |
+| `C-M-c`   | `(gfn-latex-scroll-log)` | Scrolls the log down. |
+| `C-c C-f` | `(gfn-latex-open-pdf)` | Opens the PDF file corresponding to the current buffer. |
+
+
+## Settings
+
+Adding the following lines to `init.el` makes `gfn-latex-mode` enabled automatically when opening LaTeX-related files:
 
 ```lisp
 (add-to-list 'auto-mode-alist '("\\.tex$" . gfn-latex-mode))
@@ -28,21 +35,11 @@ LaTeXファイルを執筆するための簡素なEmacs Lispパッケージ．
 (add-to-list 'auto-mode-alist '("\\.sty$" . gfn-latex-mode))
 (add-to-list 'auto-mode-alist '("\\.clo$" . gfn-latex-mode))
 (add-to-list 'auto-mode-alist '("\\.bbl$" . gfn-latex-mode))
+(add-to-list 'auto-mode-alist '("\\.otex$" . gfn-latex-mode))
 ```
 
-`C-c C-f` で起動するPDFヴューワのコマンドは，変数 `gfn-latex-pdf-viewer-command` で指定できます．デフォルトは `open` になっていますが，例えばWindows環境でSumatra PDFで表示したい場合は以下のように指定します：
+You can set the PDF viewer to `gfn-latex-pdf-viewer-command` (default: `"open"`):
 
 ```lisp
 (setq gfn-latex-pdf-viewer-command "sumatrapdf")
 ```
-
-## キーバインドと機能
-
-| キーバインド | 対応づけられた函数の仕様           | 説明 |
-|-----------|----------------------------------|------|
-| `{`       | `(gfn-latex-insert-bracket &optional num)` | 自動で `}` も補って入力します．`C-u` などで前置引数 num を与えると，num 個の `{}` の組を出力して最初の組の中にカーソルを持ってきます． |
-| `C-c C-b` | `(gfn-latex-insert-environment envname)`   | 環境入力補助．直後にミニバッファで環境名を訊いてくるので入力します．例えばここで `align*` と入力すると `\begin{align*} ... \end{align*}` が自動的に入力されます． |
-| `C-c C-d` | `(gfn-latex-insert-math)` | インライン数式 `\( ... \)` を挿入します． |
-| `C-c C-t` | `(gfn-latex-typeset)` | 現在のバッファのLaTeXファイルをタイプセットします．ログは `*Async Shell Command*` バッファに表示されます． |
-| `C-M-c`   | `(gfn-latex-scroll-log)` | ログの表示を上に送ります． |
-| `C-c C-f` | `(gfn-latex-open-pdf)` | 現在のバッファのLaTeXファイルに対応するPDFファイルを開きます． |
