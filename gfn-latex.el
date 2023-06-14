@@ -91,11 +91,11 @@
      (1 'gfn-latex-ott-bracket-face t))
     ("\\(\\\\\\(?:expandafter\\|noexpand\\)\\)\\>"
      (1 'gfn-latex-expansion-control-face t))
-    ("\\(\\\\\\(?:global\\|let\\|futurelet\\|def\\|edef\\|gdef\\|xdef\\|newcount\\|newdimen\\|newbox\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\|setbox\\)\\)\\>"
+    ("\\(\\\\\\(?:global\\|let\\|futurelet\\|def\\|edef\\|gdef\\|xdef\\|newcount\\|newdimen\\|newbox\\|newskip\\|newtoks\\|newif\\|advance\\|multiply\\|divide\\|setbox\\)\\)\\>"
      (1 'gfn-latex-definition-face t))
     ("\\(\\\\\\(?:if[a-zA-Z@]*\\|else\\|or\\|fi\\)\\)\\>"
      (1 'gfn-latex-if-face t))
-    ("\\(\\\\\\(?:the\\|string\\|csname\\|endcsname\\)\\)\\>"
+    ("\\(\\\\\\(?:the\\|string\\|csname\\|endcsname\\|relax\\|box\\|wd\\|ht\\)\\)\\>"
      (1 'gfn-latex-important-primitive-face t))
     ("\\(\\\\\\(?:begin\\|end\\){\\)\\([a-zA-Z\\*]*\\)\\(}\\)"
      (1 'gfn-latex-environment-frame-face t)
